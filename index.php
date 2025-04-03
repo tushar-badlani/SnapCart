@@ -54,8 +54,11 @@ function extractJsonFromResponse($response) {
 session_start();
 if (!isset($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
+    $_SESSION['uploadedImagePath'] = null;
 }
 $cart = &$_SESSION['cart'];
+$uploadedImagePath = &$_SESSION['uploadedImagePath'];
+
 
 // --------------------------
 // CART MANAGEMENT ACTIONS
@@ -174,7 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['shopping_list'])) {
 
     if (move_uploaded_file($_FILES['shopping_list']['tmp_name'], $uploadedFile)) {
         // Store uploaded image path for display
-        $uploadedImagePath = '/uploads/' . basename($_FILES['shopping_list']['name']);
+        $uploadedImagePath = '/sdl/project/uploads/' . basename($_FILES['shopping_list']['name']);
         $_SESSION['uploaded_image'] = $uploadedImagePath;
         
         // Read and encode the image file in base64.
