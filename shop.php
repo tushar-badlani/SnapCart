@@ -54,10 +54,10 @@ function extractJsonFromResponse($response) {
 session_start();
 if (!isset($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
-    $_SESSION['uploadedImagePath'] = null;
+    $_SESSION['uploaded_image'] = null;
 }
 $cart = &$_SESSION['cart'];
-$uploadedImagePath = &$_SESSION['uploadedImagePath'];
+$uploadedImagePath = &$_SESSION['uploaded_image'];
 
 
 // --------------------------
@@ -105,6 +105,8 @@ if (isset($_POST['action'])) {
             break;
         case 'clear_cart':
             $cart = [];
+            unset($_SESSION['uploaded_image']);
+            $uploadedImagePath = null;
             break;
     }
     header('Content-Type: application/json');
@@ -147,7 +149,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkout'])) {
             
             // Set success message
             $_SESSION['checkout_success'] = true;
-            
+            unset($_SESSION['uploaded_image']);
+            $uploadedImagePath = null;
             // Redirect to success page
             header('Location: purchase_success.php');
             exit;

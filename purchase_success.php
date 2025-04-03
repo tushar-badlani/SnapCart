@@ -4,7 +4,7 @@ session_start();
 
 // Check if user came from checkout
 if (!isset($_SESSION['checkout_success']) || $_SESSION['checkout_success'] !== true) {
-    header('Location: index.php');
+    header('Location: shop.php');
     exit;
 }
 
@@ -38,7 +38,7 @@ $_SESSION['checkout_success'] = false;
         <p class="text-gray-600 mb-8">Thank you for your purchase. Your items have been processed successfully.</p>
         
         <div class="flex justify-center">
-            <a href="index.php" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+            <a href="shop.php" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
                 Return to Shop
             </a>
         </div>
