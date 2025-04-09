@@ -149,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkout'])) {
             
             // Set success message
             $_SESSION['checkout_success'] = true;
-            unset($_SESSION['uploaded_image']);
+            unset($_SESSION['uploadedImagePath']);
             $uploadedImagePath = null;
             // Redirect to success page
             header('Location: purchase_success.php');
@@ -342,40 +342,64 @@ if (!$uploadedImagePath && isset($_SESSION['uploaded_image'])) {
                 <?php endif; ?>
 
                 <?php if ($groceryItems): ?>
-                    <div class="mt-6">
-                        <h2 class="text-xl font-semibold mb-4">Extracted Items</h2>
-                        <div class="space-y-2">
-                            <?php foreach($groceryItems as $item): ?>
-                                <?php 
-                                $itemName = htmlspecialchars($item['item']);
-                                $itemQuantity = htmlspecialchars($item['quantity'] ?? 1);
-                                $itemId = null;
-                                
-                                // Check if item exists in database
-                                if ($conn) {
-                                    $stmt = $conn->prepare("SELECT id FROM grocery_items WHERE name LIKE ?");
-                                    $stmt->bind_param("s", $searchName);
-                                    $searchName = "%{$item['item']}%";
-                                    $stmt->execute();
-                                    $result = $stmt->get_result();
-                                    if ($dbItem = $result->fetch_assoc()) {
-                                        $itemId = $dbItem['id'];
-                                    }
-                                }
-                                ?>
-                                <div class="flex justify-between items-center bg-gray-100 p-3 rounded-lg">
-                                    <span><?php echo $itemName; ?></span>
-                                    <div class="flex items-center">
-                                        <span class="mr-2">Qty: <?php echo $itemQuantity; ?></span>
-                                        <button onclick="addToCart('<?php echo $itemName; ?>', <?php echo $itemQuantity; ?>, <?php echo $itemId ? $itemId : 'null'; ?>)" class="bg-green-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-green-600">
-                                            Add
-                                        </button>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                <?php endif; ?>
+    <div class="mt-6">
+        <h2 class="text-xl font-semibold mb-4">Available Items</h2>
+        <?php
+        $unavailableItems = [];
+        foreach($groceryItems as $item): 
+            $itemName = htmlspecialchars($item['item']);
+            $itemQuantity = htmlspecialchars($item['quantity'] ?? 1);
+            $itemId = null;
+            $available = false;
+            
+            // Check if item exists in database
+            if ($conn) {
+                $stmt = $conn->prepare("SELECT id FROM grocery_items WHERE name LIKE ?");
+                $stmt->bind_param("s", $searchName);
+                $searchName = "%{$item['item']}%";
+                $stmt->execute();
+                $result = $stmt->get_result();
+                if ($dbItem = $result->fetch_assoc()) {
+                    $itemId = $dbItem['id'];
+                    $available = true;
+                } else {
+                    $unavailableItems[] = $itemName;
+                }
+            }
+            
+            // Only display the item if available
+            if ($available):
+        ?>
+            <div class="flex justify-between items-center bg-gray-100 p-3 rounded-lg mb-2">
+                <span><?php echo $itemName; ?></span>
+                <div class="flex items-center">
+                    <span class="mr-2">Qty: <?php echo $itemQuantity; ?></span>
+                    <button onclick="addToCart('<?php echo $itemName; ?>', <?php echo $itemQuantity; ?>, <?php echo $itemId; ?>)" class="bg-green-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-green-600">
+                        Add
+                    </button>
+                </div>
+            </div>
+        <?php 
+            endif;
+        endforeach; 
+        
+        // Display message about unavailable items
+        if (!empty($unavailableItems)):
+        ?>
+            <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative mt-4" role="alert">
+                <strong class="font-bold">Unavailable Items:</strong>
+                <span class="block sm:inline">
+                    The following items are not available in our shop:
+                    <ul class="list-disc pl-5 mt-2">
+                        <?php foreach($unavailableItems as $item): ?>
+                            <li><?php echo $item; ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </span>
+            </div>
+        <?php endif; ?>
+    </div>
+<?php endif; ?>
             </div>
 
             <!-- Right Column: Cart Section -->
