@@ -15,7 +15,7 @@ if (mysqli_connect_errno())
 // --------------------------
 // API KEY & ERROR/RESULT INIT
 // --------------------------
-$api_key = 'AIzaSyCVrcYnoDtbJsAD0paHYhny4KxcvOdLOro'; // Replace with your actual API key.
+$api_key = ''; // Replace with your actual API key.
 $error = null;
 $groceryItems = null;
 $databaseResults = null;
